@@ -207,12 +207,4 @@ marimo/_lsp/
 __marimo__/
 
 # --- CAU HINH RIENG CHO DO AN MON HOC ---
-# Bo qua thu muc du lieu va mo hinh
-data/
-models/
-*.csv
-*.joblib
-*.pkl
 
-# Bo qua file bien moi truong
-.env
