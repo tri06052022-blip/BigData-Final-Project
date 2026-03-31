@@ -223,8 +223,14 @@ print(f"Đã lưu best model Classification tại {model_export_path}")
 # %%
 print("Trích xuất features Regression qua Pipeline...")
 # Xóa bỏ các dòng bị thiếu dữ liệu (NaN) ở cột Target vì thuật toán không thể học nếu không có kết quả thực tế
-df_train_reg = df_train.dropna(subset=["total_payment_value"])
-df_test_reg = df_test.dropna(subset=["total_payment_value"])
+df_train_reg = df_train.dropna(subset=["total_payment_value"]).copy()
+df_test_reg = df_test.dropna(subset=["total_payment_value"]).copy()
+
+# Xóa nội dung review để tránh Rò rỉ dữ liệu tương lai (Data Leakage) vì phí ship/tiền hàng có trước khi review.
+# Việc gán bằng chuỗi rỗng ("") giúp pipeline của M1 vẫn trơn tru qua bước TF-IDF, nhưng chỉ sinh ra ma trận toàn số 0 vô hại.
+if 'review_comment_message' in pipeline_reg.feature_names_in_:
+    df_train_reg['review_comment_message'] = ""
+    df_test_reg['review_comment_message'] = ""
 
 X_train_raw = df_train_reg[pipeline_reg.feature_names_in_]
 X_test_raw = df_test_reg[pipeline_reg.feature_names_in_]
