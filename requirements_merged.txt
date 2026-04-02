@@ -1,0 +1,32 @@
+# ==============================================================
+# TỔNG HỢP MÔI TRƯỜNG TOÀN BỘ PROJECT (MERGED)
+# ==============================================================
+# Khuyên dùng trên Python: 3.10.x
+#
+# Cài đặt bằng lệnh:
+#   pip install -r requirements_merged.txt
+#
+# Lưu ý: Cài đặt thêm từ điển NLTK sau khi install xong:
+#   python -m nltk.downloader stopwords
+# ==============================================================
+
+# ---- 1. Core Data Science ------------------------------------
+numpy>=1.23.0
+pandas>=1.5.0
+scipy>=1.9.0
+
+# ---- 2. Cốt lõi Machine Learning & NLP -----------------------
+scikit-learn>=1.1.0       # Cho Classification & Regression
+scikit-surprise>=1.1.0    # Cho Recommendation
+mlxtend>=0.22.0           # Cho Frequent Pattern (FP-Growth M4)
+nltk>=3.8.0               # Xử lý text (TF-IDF M4)
+
+# ---- 3. Vẽ biểu đồ (Visualization) ---------------------------
+matplotlib>=3.7.0         # Vẽ Confusion Matrix, Elbow, v.v
+seaborn>=0.12.0           # Vẽ Heatmap
+
+# ---- 4. Tiện ích & Định dạng (Utils) -------------------------
+pyarrow>=10.0.0           # Đọc file parquet
+joblib>=1.2.0             # Lưu & Load pipeline/model
+jupyter>=1.0.0            # Chạy notebook
+ipython>=8.0.0
