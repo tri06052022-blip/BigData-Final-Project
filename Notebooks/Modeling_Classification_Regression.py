@@ -17,7 +17,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import LinearSVC
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix, roc_curve, auc
 
 # Regression
 from sklearn.linear_model import LinearRegression
@@ -150,7 +150,41 @@ joblib.dump(best_clf_model, model_export_path)
 print(f"Đã lưu best model Classification tại {model_export_path}")
 
 # ==============================================================================
-# 6. Chuẩn bị Feature và Target cho Regression
+# 6. Trực quan hóa ROC Curve cho các mô hình Classification
+# ==============================================================================
+print("\nĐang vẽ và lưu biểu đồ ROC Curve...")
+plt.figure(figsize=(10, 8))
+
+for name, model in clf_models.items():
+    try:
+        if name == 'Gaussian NB' and scipy.sparse.issparse(X_test_clf):
+            y_prob = model.predict_proba(X_test_clf.toarray())[:, 1]
+        elif hasattr(model, "predict_proba"):
+            y_prob = model.predict_proba(X_test_clf)[:, 1]
+        elif hasattr(model, "decision_function"):
+            y_prob = model.decision_function(X_test_clf)
+        else:
+            continue
+            
+        fpr, tpr, _ = roc_curve(y_test_clf, y_prob)
+        roc_auc = auc(fpr, tpr)
+        
+        plt.plot(fpr, tpr, lw=2, label=f'{name} (AUC = {roc_auc:.4f})')
+    except Exception as e:
+        print(f"Không thể vẽ ROC Curve cho {name}: {e}")
+
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate (FPR)')
+plt.ylabel('True Positive Rate (TPR)')
+plt.title('Receiver Operating Characteristic (ROC) Curve - Classification Models')
+plt.legend(loc="lower right")
+plt.savefig('../Visualizations/roc_curve_classification.png')
+print("Đã lưu hình ảnh ROC Curve tại ../Visualizations/roc_curve_classification.png")
+
+# ==============================================================================
+# 7. Chuẩn bị Feature và Target cho Regression
 # ==============================================================================
 print("\nTrích xuất features Regression qua Pipeline...")
 df_train_reg = df_train.dropna(subset=["total_payment_value"]).copy()
@@ -171,7 +205,7 @@ y_test_reg = df_test_reg["total_payment_value"].values
 print("Kích thước X_train_reg:", X_train_reg.shape)
 
 # ==============================================================================
-# 7. Khởi tạo, Huấn luyện và Đánh giá các mô hình Hồi quy
+# 8. Khởi tạo, Huấn luyện và Đánh giá các mô hình Hồi quy
 # ==============================================================================
 reg_models = {
     'Linear Regression': LinearRegression(fit_intercept=True),
@@ -207,7 +241,7 @@ print("\nBảng Kết quả Hồi quy:")
 print(df_reg_results.to_string())
 
 # ==============================================================================
-# 8. Lựa chọn và Lưu mô hình Hồi quy có hiệu suất cao nhất
+# 9. Lựa chọn và Lưu mô hình Hồi quy có hiệu suất cao nhất
 # ==============================================================================
 if len(df_reg_results) > 0:
     best_model_name_reg = df_reg_results.sort_values(by='R²', ascending=False).iloc[0]['Model']
