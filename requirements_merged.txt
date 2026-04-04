@@ -30,3 +30,12 @@ pyarrow>=10.0.0           # Đọc file parquet
 joblib>=1.2.0             # Lưu & Load pipeline/model
 jupyter>=1.0.0            # Chạy notebook
 ipython>=8.0.0
+
+
+# ---- 5. Big Data & App ---------------------------------------
+pyspark>=3.5.1            # Thư viện Apache Spark cho Python
+streamlit>=1.31.0         # Web Framework để làm Demo
+
+# Lưu ý: Các môi trường sau cần cài đặt trực tiếp trên hệ điều hành:
+# - Java JDK >= 11 (Bắt buộc để chạy Spark)
+# - Hadoop 3.x (Nếu dùng Windows)
