@@ -252,3 +252,166 @@ if len(df_reg_results) > 0:
     joblib.dump(best_reg_model, model_export_path_reg)
     print(f"Đã lưu best model Regression tại {model_export_path_reg}")
 
+# ==============================================================================
+# 10. Đánh giá chi tiết Logistic Regression
+# ==============================================================================
+from sklearn.metrics import classification_report
+
+print("\n[Chi tiết] Đánh giá Logistic Regression...")
+lr_model = clf_models['Logistic Regression']
+y_pred_lr = lr_model.predict(X_test_clf)
+
+print("CLASSIFICATION REPORT: LOGISTIC REGRESSION")
+target_names = ['Negative (0)', 'Positive (1)']
+print(classification_report(y_test_clf, y_pred_lr, target_names=target_names))
+
+cm_lr = confusion_matrix(y_test_clf, y_pred_lr)
+plt.figure(figsize=(6,5))
+sns.heatmap(cm_lr, annot=True, fmt='d', cmap='Blues', xticklabels=target_names, yticklabels=target_names)
+plt.title('Confusion Matrix - Logistic Regression')
+plt.xlabel('Predicted Label')
+plt.ylabel('True Label')
+plt.savefig('../Visualizations/confusion_matrix_lr.png')
+print("Đã lưu hình ảnh Confusion Matrix tại ../Visualizations/confusion_matrix_lr.png")
+
+# ==============================================================================
+# 11. Đánh giá chi tiết Random Forest
+# ==============================================================================
+print("\n[Chi tiết] Đánh giá Random Forest...")
+rf_model = clf_models['Random Forest']
+y_pred_rf = rf_model.predict(X_test_clf)
+
+print("CLASSIFICATION REPORT: RANDOM FOREST")
+print(classification_report(y_test_clf, y_pred_rf, target_names=target_names))
+
+print("Đang xử lý dữ liệu và vẽ biểu đồ Feature Importance...")
+try:
+    feature_names = pipeline_clf.get_feature_names_out()
+except:
+    feature_names = [f"Feature_{i}" for i in range(X_train_clf.shape[1])]
+
+importances = rf_model.feature_importances_
+df_importances = pd.DataFrame({'Feature': feature_names, 'Importance Score': importances}).sort_values(by='Importance Score', ascending=False)
+top_n = 20
+df_top_importances = df_importances.head(top_n)
+
+plt.figure(figsize=(10, 8))
+sns.barplot(x='Importance Score', y='Feature', data=df_top_importances, palette='viridis')
+plt.title(f'Top {top_n} Feature Importances - Random Forest')
+plt.xlabel('Mức độ ảnh hưởng (Importance Score)')
+plt.ylabel('Tên đặc trưng (Feature / Word)')
+plt.tight_layout()
+plt.savefig('../Visualizations/feature_importance_rf.png')
+print("Đã lưu hình ảnh Feature Importance tại ../Visualizations/feature_importance_rf.png")
+
+# ==============================================================================
+# 12. Đánh giá chi tiết Gaussian Naive Bayes
+# ==============================================================================
+print("\n[Chi tiết] Đánh giá Gaussian Naive Bayes...")
+gnb_model = clf_models['Gaussian NB']
+
+if scipy.sparse.issparse(X_test_clf):
+    X_test_dense = X_test_clf.toarray()
+else:
+    X_test_dense = X_test_clf
+
+y_pred_gnb = gnb_model.predict(X_test_dense)
+y_prob_gnb = gnb_model.predict_proba(X_test_dense)[:, 1]
+
+print("CLASSIFICATION REPORT: GAUSSIAN NAIVE BAYES")
+print(classification_report(y_test_clf, y_pred_gnb, target_names=target_names))
+
+plt.figure(figsize=(8,5))
+sns.histplot(y_prob_gnb[y_test_clf == 0], color='red', label='Thực tế: Negative (0)', kde=True, bins=30, alpha=0.5)
+sns.histplot(y_prob_gnb[y_test_clf == 1], color='blue', label='Thực tế: Positive (1)', kde=True, bins=30, alpha=0.5)
+plt.title('Predicted Probability Distribution - Gaussian NB')
+plt.xlabel('Xác suất dự đoán là Tích cực (Class 1)')
+plt.ylabel('Số lượng mẫu (Count)')
+plt.legend()
+plt.tight_layout()
+plt.savefig('../Visualizations/probability_dist_gnb.png')
+print("Đã lưu hình ảnh biểu đồ tại ../Visualizations/probability_dist_gnb.png")
+
+# ==============================================================================
+# 13. Đánh giá chi tiết Linear SVC
+# ==============================================================================
+print("\n[Chi tiết] Đánh giá Linear SVC...")
+svc_model = clf_models['Linear SVC']
+y_pred_svc = svc_model.predict(X_test_clf)
+
+print("CLASSIFICATION REPORT: LINEAR SVC")
+print(classification_report(y_test_clf, y_pred_svc, target_names=target_names))
+
+print("Đang xử lý dữ liệu và trình bày độ lớn đường biên (Coefficients)...")
+coefficients = svc_model.coef_[0]
+df_coef = pd.DataFrame({'Feature': feature_names, 'Coefficient': coefficients})
+
+top_positive = df_coef.sort_values(by='Coefficient', ascending=False).head(15)
+top_negative = df_coef.sort_values(by='Coefficient', ascending=True).head(15)
+top_coefs = pd.concat([top_positive, top_negative]).sort_values(by='Coefficient')
+
+plt.figure(figsize=(10, 8))
+colors = ['red' if c < 0 else 'blue' for c in top_coefs['Coefficient']]
+sns.barplot(x='Coefficient', y='Feature', data=top_coefs, palette=colors)
+plt.title('Top 15 Positive & Negative Feature Coefficients - Linear SVC')
+plt.xlabel('Trọng số đường biên quyết định (Coefficient Value)')
+plt.ylabel('Tên đặc trưng (Feature / Word)')
+plt.axvline(x=0, color='black', linestyle='--')
+plt.tight_layout()
+plt.savefig('../Visualizations/feature_coefficients_svc.png')
+print("Đã lưu hình ảnh biểu đồ tại ../Visualizations/feature_coefficients_svc.png")
+
+# ==============================================================================
+# 14. Đánh giá chi tiết Gradient Boosting Classifier
+# ==============================================================================
+print("\n[Chi tiết] Đánh giá Gradient Boosting Classifier...")
+gb_model = clf_models['Gradient Boosting']
+y_pred_gb = gb_model.predict(X_test_clf)
+
+print("CLASSIFICATION REPORT: GRADIENT BOOSTING CLASSIFIER")
+print(classification_report(y_test_clf, y_pred_gb, target_names=target_names))
+
+cm_gb = confusion_matrix(y_test_clf, y_pred_gb)
+plt.figure(figsize=(6,5))
+sns.heatmap(cm_gb, annot=True, fmt='d', cmap='Greens', xticklabels=target_names, yticklabels=target_names)
+plt.title('Confusion Matrix - Gradient Boosting Classifier')
+plt.xlabel('Predicted Label')
+plt.ylabel('True Label')
+plt.tight_layout()
+plt.savefig('../Visualizations/confusion_matrix_gb.png')
+print("Đã lưu hình ảnh Confusion Matrix tại ../Visualizations/confusion_matrix_gb.png")
+
+# ==============================================================================
+# 15. Vẽ biểu đồ so sánh 3 mô hình Regression
+# ==============================================================================
+print("\n=== BẢNG TỔNG HỢP KẾT QUẢ REGRESSION ===")
+print(df_reg_results.to_string(index=False))
+
+fig, axes = plt.subplots(1, 3, figsize=(16, 5))
+
+# RMSE
+sns.barplot(x='Model', y='RMSE', data=df_reg_results, ax=axes[0], palette='Blues_r')
+axes[0].set_title('So sánh RMSE (Càng thấp càng tốt)', fontweight='bold')
+axes[0].tick_params(axis='x', rotation=15)
+for i, v in enumerate(df_reg_results['RMSE']):
+    axes[0].text(i, v + 0.5, f"{v:.2f}", ha='center')
+
+# MAE
+sns.barplot(x='Model', y='MAE', data=df_reg_results, ax=axes[1], palette='Oranges_r')
+axes[1].set_title('So sánh MAE (Càng thấp càng tốt)', fontweight='bold')
+axes[1].tick_params(axis='x', rotation=15)
+for i, v in enumerate(df_reg_results['MAE']):
+    axes[1].text(i, v + 0.5, f"{v:.2f}", ha='center')
+
+# R²
+sns.barplot(x='Model', y='R²', data=df_reg_results, ax=axes[2], palette='Greens_d')
+axes[2].set_title('So sánh R-squared (R²) (Càng gần 1 càng tốt)', fontweight='bold')
+axes[2].tick_params(axis='x', rotation=15)
+for i, v in enumerate(df_reg_results['R²']):
+    axes[2].text(i, v + 0.01, f"{v:.4f}", ha='center')
+
+plt.suptitle('SO SÁNH HIỆU NĂNG 3 MÔ HÌNH REGRESSION', fontsize=16, y=1.05)
+plt.tight_layout()
+plt.savefig('../Visualizations/regression_comparison_charts.png', bbox_inches='tight')
+print("Đã lưu ảnh biểu đồ đa diện tại: ../Visualizations/regression_comparison_charts.png")
+
