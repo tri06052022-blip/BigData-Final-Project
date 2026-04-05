@@ -1,0 +1,6 @@
+antecedents,consequents,support,confidence,lift
+fashio_female_clothing,fashion_sport,0.0014,1.0,363.0
+fashion_sport,fashio_female_clothing,0.0014,0.5,363.0
+"auto, fashion_bags_accessories",musical_instruments,0.0014,1.0,103.7143
+musical_instruments,"auto, fashion_bags_accessories",0.0014,0.1429,103.7143
+music,books_technical,0.0014,0.5,90.75
