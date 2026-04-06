@@ -39,7 +39,7 @@ BigData-Final-Project/
 ### 1. Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements_merged.txt
 ```
 
 ### 2. Run IV.5 Clustering
