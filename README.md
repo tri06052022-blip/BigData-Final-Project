@@ -61,3 +61,15 @@ python3 Pipelines/iv6_recommendation_pipeline.py
 - **IV.5 Clustering**: `Pipelines/CLUSTERING_PIPELINE_STRUCTURE.md`
 - **IV.6 Recommendation**: `Pipelines/PIPELINE_STRUCTURE.md`
 - **Detailed Report**: `Reports/BÁOCÁO_IV6_RECOMMENDATION_SURPRISE.md`
+
+---
+
+## 🚀 Hướng Phát Triển
+
+Xem chi tiết tại [`HUONG_PHAT_TRIEN.md`](HUONG_PHAT_TRIEN.md):
+
+1. **Deep Learning (DNN, Transformer)** — Cải thiện classification bằng Tab-Transformer, LSTM
+2. **AutoML (TPOT, auto-sklearn)** — Tự động tìm pipeline tối ưu
+3. **Dask / Vaex** — Xử lý batch lớn hàng triệu bản ghi ngoài RAM
+4. **Deploy Streamlit Cloud / Heroku** — Công khai ứng dụng trên internet
+5. **A/B Testing** — Đánh giá hiệu quả thực tế của hệ thống khuyến nghị
