@@ -11,14 +11,14 @@
 # ==============================================================
 
 # ---- 1. Core Data Science ------------------------------------
-numpy>=1.23.0
+numpy>=1.23.0,<2.0.0      # Surprise SVD hiện chưa tương thích NumPy 2.x
 pandas>=1.5.0
 scipy>=1.9.0
 
 # ---- 2. Cốt lõi Machine Learning & NLP -----------------------
-scikit-learn>=1.1.0       # Cho Classification & Regression
+scikit-learn==1.7.2       # Khớp phiên bản đã train pipeline/model để tránh lỗi unpickle
 scikit-surprise>=1.1.0    # Cho Recommendation
-mlxtend>=0.22.0           # Cho Frequent Pattern (FP-Growth M4)
+mlxtend==0.23.4           # Tương thích với scikit-learn 1.7.2
 nltk>=3.8.0               # Xử lý text (TF-IDF M4)
 
 # ---- 3. Vẽ biểu đồ (Visualization) ---------------------------
@@ -34,8 +34,10 @@ ipython>=8.0.0
 
 # ---- 5. Big Data & App ---------------------------------------
 pyspark>=3.5.1            # Thư viện Apache Spark cho Python
-streamlit>=1.31.0         # Web Framework để làm Demo
 
 # Lưu ý: Các môi trường sau cần cài đặt trực tiếp trên hệ điều hành:
 # - Java JDK >= 11 (Bắt buộc để chạy Spark)
 # - Hadoop 3.x (Nếu dùng Windows)
+streamlit>=1.36.0
+plotly>=6.0.0
+streamlit-option-menu>=0.4.0
