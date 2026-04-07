@@ -1,217 +1,51 @@
-# 🚀 HƯỚNG PHÁT TRIỂN
+# HƯỚNG PHÁT TRIỂN
 
-Dựa trên hệ thống phân tích khách hàng E-commerce Olist đã xây dựng (phân cụm RFM, hệ thống khuyến nghị, phân loại khách hàng), nhóm đề xuất **5 hướng phát triển** để nâng cấp hệ thống trong giai đoạn tiếp theo:
-
----
-
-## 1. 🧠 Áp Dụng Deep Learning (DNN, Transformer) Cải Thiện Classification
-
-### Vấn đề hiện tại
-Mô hình phân loại hiện tại (Logistic Regression, Random Forest, XGBoost trong `Modeling_Classification_Regression.ipynb`) sử dụng các thuật toán học máy truyền thống với đặc trưng RFM thủ công. Các mô hình này gặp hạn chế khi số chiều đặc trưng tăng hoặc dữ liệu phi tuyến phức tạp.
-
-### Hướng phát triển
-- **Deep Neural Network (DNN)**: Xây dựng mạng nơ-ron sâu nhiều tầng (fully connected layers) với dropout và batch normalization để phân loại phân khúc khách hàng (Champions, Loyal, At-Risk, Lost...). DNN có khả năng học tự động các mối quan hệ phi tuyến giữa R, F, M và các đặc trưng bổ sung (loại sản phẩm, địa lý, phương thức thanh toán).
-- **Transformer / Tab-Transformer**: Áp dụng kiến trúc Transformer (vốn nổi tiếng trong NLP) cho dữ liệu dạng bảng (tabular data). Tab-Transformer chuyển từng đặc trưng phân loại thành embedding và dùng Self-Attention để học tương quan giữa các đặc trưng, vượt trội hơn XGBoost trên dữ liệu hỗn hợp số-phân loại.
-- **Sequence Modeling**: Sử dụng LSTM / Transformer để mô hình hóa lịch sử giao dịch của khách hàng theo chuỗi thời gian, dự đoán phân khúc tương lai thay vì chỉ dựa trên snapshot RFM tại một thời điểm.
-
-### Công nghệ đề xuất
-```
-PyTorch / TensorFlow / Keras
-pytorch-tabnet (Tab-Transformer for tabular data)
-transformers (HuggingFace)
-```
+Dựa trên hệ thống phân tích khách hàng E-commerce Olist đã xây dựng, bao gồm phân cụm RFM, hệ thống khuyến nghị và phân loại khách hàng, nhóm đề xuất năm hướng phát triển chính để nâng cấp hệ thống trong giai đoạn tiếp theo.
 
 ---
 
-## 2. 🤖 Sử Dụng AutoML (TPOT, auto-sklearn)
+## 1. Áp Dụng Deep Learning (DNN, Transformer) Cải Thiện Classification
 
-### Vấn đề hiện tại
-Việc lựa chọn thuật toán và điều chỉnh siêu tham số (hyperparameter tuning) hiện nay được thực hiện thủ công, tốn thời gian và phụ thuộc vào kinh nghiệm. Không đảm bảo tìm được pipeline tối ưu nhất.
+Mô hình phân loại hiện tại sử dụng các thuật toán học máy truyền thống như Logistic Regression, Random Forest và XGBoost với đặc trưng RFM được tính thủ công. Mặc dù các mô hình này cho kết quả khá tốt trên tập dữ liệu hiện tại, chúng gặp hạn chế rõ rệt khi số chiều đặc trưng tăng hoặc khi dữ liệu có cấu trúc phi tuyến phức tạp.
 
-### Hướng phát triển
-- **TPOT (Tree-based Pipeline Optimization Tool)**: Sử dụng Genetic Programming để tự động tìm kiếm pipeline machine learning tối ưu — bao gồm bước tiền xử lý, chọn đặc trưng, và thuật toán phân loại — trên bài toán phân khúc khách hàng và dự đoán churn.
-- **auto-sklearn**: Kết hợp Bayesian Optimization và Meta-learning để tự động chọn thuật toán tốt nhất từ thư viện scikit-learn. auto-sklearn xây dựng ensemble từ các mô hình candidate, thường cho kết quả tốt hơn bất kỳ mô hình đơn lẻ nào.
-- **So sánh AutoML vs thủ công**: Chạy song song AutoML pipeline với kết quả hiện tại, so sánh Accuracy / F1-Score / ROC-AUC để chứng minh lợi ích thực tế của AutoML.
+Để khắc phục điều này, nhóm đề xuất xây dựng mạng nơ-ron sâu (Deep Neural Network — DNN) nhiều tầng với kiến trúc fully connected layers kết hợp dropout và batch normalization, nhằm phân loại chính xác hơn các phân khúc khách hàng như Champions, Loyal, At-Risk hay Lost. DNN có khả năng học tự động các mối quan hệ phi tuyến giữa ba chỉ số R, F, M cùng các đặc trưng bổ sung như loại sản phẩm, địa lý và phương thức thanh toán mà các thuật toán truyền thống khó nắm bắt được.
 
-### Công nghệ đề xuất
-```
-tpot==0.12.0
-auto-sklearn==0.15.0
-optuna (Bayesian hyperparameter optimization)
-```
-
-### Ví dụ tích hợp
-```python
-from tpot import TPOTClassifier
-
-tpot = TPOTClassifier(
-    generations=10,
-    population_size=50,
-    cv=5,
-    scoring='f1_weighted',
-    random_state=42,
-    verbosity=2
-)
-tpot.fit(X_train, y_train)
-tpot.export('best_pipeline.py')
-```
+Song song đó, nhóm đề xuất áp dụng kiến trúc Transformer, cụ thể là Tab-Transformer, vốn ban đầu được phát triển cho dữ liệu ngôn ngữ tự nhiên nhưng gần đây đã chứng minh hiệu quả vượt trội trên dữ liệu dạng bảng (tabular data). Tab-Transformer chuyển từng đặc trưng phân loại thành vector embedding rồi sử dụng cơ chế Self-Attention để học các tương quan phức tạp giữa các đặc trưng, cho phép mô hình hoạt động tốt hơn XGBoost trên dữ liệu hỗn hợp số-phân loại. Ngoài ra, việc ứng dụng LSTM hoặc Transformer để mô hình hóa lịch sử giao dịch theo chuỗi thời gian sẽ giúp dự đoán phân khúc khách hàng trong tương lai thay vì chỉ dựa trên một snapshot RFM tại một thời điểm cố định.
 
 ---
 
-## 3. ⚡ Tích Hợp Xử Lý Batch Lớn Với Dask Hoặc Vaex
+## 2. Sử Dụng AutoML (TPOT, auto-sklearn)
 
-### Vấn đề hiện tại
-Toàn bộ pipeline hiện tại xử lý dữ liệu **in-memory** với pandas (96,096 hàng). Khi mở rộng sang hàng chục triệu bản ghi (thực tế doanh nghiệp), bộ nhớ RAM sẽ bị cạn kiệt và pandas không thể xử lý được.
+Hiện tại, việc lựa chọn thuật toán và điều chỉnh siêu tham số (hyperparameter tuning) hoàn toàn được thực hiện thủ công, đòi hỏi nhiều thời gian thử nghiệm và phụ thuộc nhiều vào kinh nghiệm của nhóm. Cách tiếp cận này không đảm bảo tìm được pipeline tối ưu nhất cho bài toán phân khúc khách hàng và dự đoán churn.
 
-### Hướng phát triển
-
-#### Dask — Xử lý phân tán ngoài bộ nhớ
-- Thay thế `pandas.read_csv()` bằng `dask.dataframe.read_csv()` để xử lý dữ liệu lớn hơn RAM bằng cách chia thành các partition nhỏ.
-- Tái sử dụng toàn bộ code pandas hiện có (API tương thích), chỉ thêm `.compute()` khi cần kết quả cuối.
-- Tích hợp với Dask-ML để huấn luyện KMeans, StandardScaler phân tán trên cluster.
-
-```python
-import dask.dataframe as dd
-
-# Thay thế pandas
-df = dd.read_parquet('Data/Raw/rfm_dataset.parquet')
-rfm_processed = df.groupby('customer_id').agg({
-    'recency': 'min',
-    'frequency': 'count',
-    'monetary': 'sum'
-}).compute()
-```
-
-#### Vaex — Lazy evaluation cho file lớn
-- Vaex xử lý file CSV/HDF5/Arrow hàng tỷ dòng mà không load vào RAM nhờ memory-mapped files.
-- Phù hợp cho bước Exploratory Data Analysis (EDA) và feature engineering trên toàn bộ lịch sử giao dịch Olist mở rộng.
-
-```python
-import vaex
-
-df = vaex.open('Data/Raw/orders_full.hdf5')
-df.describe()  # Instant — không load vào RAM
-```
-
-#### Lộ trình tích hợp
-| Bước | Công việc |
-|------|-----------|
-| 1 | Chuyển pipeline đọc dữ liệu sang Dask DataFrame |
-| 2 | Tái cấu trúc RFM aggregation với Dask groupby |
-| 3 | Dùng Dask-ML cho StandardScaler và KMeans |
-| 4 | Benchmark tốc độ pandas vs Dask trên 1M, 10M, 100M rows |
+TPOT (Tree-based Pipeline Optimization Tool) giải quyết vấn đề này bằng cách sử dụng Genetic Programming để tự động tìm kiếm pipeline machine learning tốt nhất, bao gồm toàn bộ quy trình từ tiền xử lý, chọn đặc trưng cho đến thuật toán phân loại. Thay vì thử nghiệm thủ công từng tổ hợp, TPOT tiến hóa hàng trăm pipeline qua nhiều thế hệ và trả về pipeline tối ưu dưới dạng code Python sẵn sàng sử dụng. Bên cạnh đó, auto-sklearn kết hợp Bayesian Optimization với Meta-learning để tự động chọn thuật toán phù hợp nhất từ thư viện scikit-learn rồi xây dựng ensemble từ các mô hình tốt nhất, thường cho kết quả cao hơn bất kỳ mô hình đơn lẻ nào. Nhóm sẽ chạy song song AutoML pipeline với kết quả thủ công hiện tại, so sánh các chỉ số Accuracy, F1-Score và ROC-AUC để định lượng lợi ích thực tế mà AutoML mang lại.
 
 ---
 
-## 4. 🌐 Deploy Lên Streamlit Cloud Hoặc Heroku
+## 3. Tích Hợp Xử Lý Batch Lớn Với Dask Hoặc Vaex
 
-### Vấn đề hiện tại
-Ứng dụng `app.py` hiện chỉ chạy local trên máy tính cá nhân. Không có khả năng truy cập từ xa, không có URL công khai để demo với giảng viên hoặc khách hàng.
+Toàn bộ pipeline hiện tại xử lý dữ liệu in-memory với thư viện pandas trên tập 96.096 hàng. Mặc dù đủ dùng cho nghiên cứu, cách tiếp cận này gặp giới hạn nghiêm trọng khi mở rộng sang môi trường doanh nghiệp thực tế với hàng chục triệu bản ghi — bộ nhớ RAM sẽ nhanh chóng bị cạn kiệt và pandas không thể xử lý được.
 
-### Hướng phát triển
-
-#### Phương án A — Streamlit Cloud (Khuyến nghị)
-Streamlit Cloud cho phép deploy trực tiếp từ GitHub repo, miễn phí, phù hợp với ứng dụng data science/ML:
-
-```bash
-# Bước 1: Đảm bảo requirements đầy đủ
-pip freeze > requirements.txt
-
-# Bước 2: Push lên GitHub
-git add . && git commit -m "deploy: streamlit cloud"
-git push origin main
-
-# Bước 3: Đăng nhập share.streamlit.io
-# → New app → chọn repo → chọn app.py → Deploy
-```
-
-- **URL công khai**: `https://bigdata-final-olist.streamlit.app`
-- **Tự động redeploy** khi push code mới lên GitHub
-
-#### Phương án B — Heroku
-```bash
-# Procfile
-echo "web: streamlit run app.py --server.port=$PORT --server.address=0.0.0.0" > Procfile
-
-# Deploy
-heroku create bigdata-final-olist
-git push heroku main
-heroku open
-```
-
-#### Tính năng cần hoàn thiện cho production
-- [ ] Authentication (đăng nhập người dùng)
-- [ ] Caching kết quả (`@st.cache_data`) để tăng tốc độ
-- [ ] Responsive UI cho mobile
-- [ ] Error handling và logging
+Dask giải quyết vấn đề này bằng cách chia dữ liệu thành các partition nhỏ và xử lý tuần tự hoặc song song mà không cần load toàn bộ vào RAM. Điểm mạnh của Dask là API gần như tương thích hoàn toàn với pandas, nên nhóm có thể tái sử dụng phần lớn code hiện có và chỉ cần thêm lệnh `.compute()` tại bước cuối khi cần kết quả thực sự. Dask-ML còn cho phép huấn luyện KMeans và StandardScaler phân tán trên cluster, mở rộng khả năng xử lý lên hàng trăm triệu bản ghi. Song song đó, Vaex cung cấp khả năng lazy evaluation thông qua memory-mapped files, cho phép phân tích và trực quan hóa tập dữ liệu hàng tỷ dòng mà hoàn toàn không cần load vào RAM, đặc biệt phù hợp cho giai đoạn EDA và feature engineering khi cần khám phá nhanh toàn bộ lịch sử giao dịch Olist mở rộng.
 
 ---
 
-## 5. 🔬 A/B Testing Với Kết Quả Khuyến Nghị
+## 4. Deploy Lên Streamlit Cloud Hoặc Heroku
 
-### Vấn đề hiện tại
-Hệ thống khuyến nghị (SVD, KNNWithMeans) được đánh giá bằng RMSE/MAE trên tập test — chỉ đo **độ chính xác dự đoán rating**, chưa đo được **hiệu quả kinh doanh thực tế** (click-through rate, conversion rate, doanh thu tăng thêm).
+Ứng dụng `app.py` hiện chỉ có thể chạy local trên máy tính cá nhân của từng thành viên. Điều này đồng nghĩa với việc không có URL công khai để demo với giảng viên hoặc khách hàng, và người dùng bên ngoài không thể trải nghiệm hệ thống mà không cài đặt môi trường Python thủ công.
 
-### Hướng phát triển
-A/B Testing cho phép so sánh trực tiếp 2 phiên bản hệ thống khuyến nghị trên người dùng thực:
-
-#### Thiết kế thí nghiệm
-| Nhóm | Mô hình | Mục tiêu đo |
-|------|---------|-------------|
-| **Nhóm A (Control)** | SVD (baseline) | Click-through Rate (CTR) |
-| **Nhóm B (Treatment)** | KNNWithMeans / DNN | Conversion Rate, Revenue |
-
-#### Pipeline A/B Testing
-```python
-import hashlib
-import numpy as np
-from scipy import stats
-
-def assign_group(customer_id: str, salt: str = "ab_test_v1") -> str:
-    """Phân nhóm A/B ổn định theo customer_id."""
-    hash_val = int(hashlib.md5(f"{customer_id}{salt}".encode()).hexdigest(), 16)
-    return "B" if hash_val % 2 == 0 else "A"
-
-def get_recommendations(customer_id: str, n: int = 5) -> list:
-    group = assign_group(customer_id)
-    if group == "A":
-        return svd_model.recommend(customer_id, n)  # Control: SVD
-    else:
-        return knn_model.recommend(customer_id, n)  # Treatment: KNN
-
-def analyze_ab_results(metrics_a: list, metrics_b: list) -> dict:
-    """Kiểm định thống kê kết quả A/B test."""
-    t_stat, p_value = stats.ttest_ind(metrics_a, metrics_b)
-    return {
-        "mean_A": np.mean(metrics_a),
-        "mean_B": np.mean(metrics_b),
-        "lift": (np.mean(metrics_b) - np.mean(metrics_a)) / np.mean(metrics_a) * 100,
-        "p_value": p_value,
-        "significant": p_value < 0.05
-    }
-```
-
-#### Metrics theo dõi
-- **Online metrics**: CTR, Conversion Rate, Average Order Value, Revenue per User
-- **Offline metrics**: RMSE, NDCG@10, Precision@K, Recall@K
-- **Guardrail metrics**: Tỉ lệ khiếu nại, thời gian phiên, bounce rate
-
-#### Kết luận thống kê
-- Sử dụng **t-test hai mẫu** hoặc **Mann-Whitney U test** để so sánh
-- Ngưỡng ý nghĩa: p-value < 0.05 (độ tin cậy 95%)
-- Thời gian chạy thí nghiệm: tối thiểu 2 tuần để đủ statistical power
-- **Mục tiêu**: Chọn mô hình khuyến nghị tốt hơn dựa trên bằng chứng thực nghiệm, không chỉ dựa trên RMSE offline
+Nhóm đề xuất ưu tiên deploy lên Streamlit Cloud vì nền tảng này hoàn toàn miễn phí, tích hợp trực tiếp với GitHub repository và tự động redeploy mỗi khi có commit mới lên nhánh chính, không đòi hỏi cấu hình server phức tạp. Sau khi push code lên GitHub và đăng nhập tại `share.streamlit.io`, ứng dụng sẽ có URL công khai ngay lập tức, ví dụ `https://bigdata-final-olist.streamlit.app`. Nếu cần môi trường linh hoạt hơn với khả năng tùy chỉnh server, Heroku là lựa chọn thay thế phù hợp thông qua việc thêm `Procfile` chứa lệnh khởi động Streamlit với biến môi trường `$PORT` do Heroku cung cấp. Để ứng dụng sẵn sàng cho production, nhóm cần bổ sung cơ chế caching kết quả với `@st.cache_data` để giảm thời gian phản hồi, xử lý lỗi đầy đủ và giao diện responsive tương thích thiết bị di động.
 
 ---
 
-## 📋 Tổng Kết Lộ Trình
+## 5. A/B Testing Với Kết Quả Khuyến Nghị
 
-| # | Hướng phát triển | Công nghệ | Ưu tiên |
-|---|-----------------|-----------|---------|
-| 1 | Deep Learning (DNN, Transformer) | PyTorch, Tab-Transformer | 🔴 Cao |
-| 2 | AutoML (TPOT, auto-sklearn) | TPOT, auto-sklearn, Optuna | 🟠 Trung bình-cao |
-| 3 | Xử lý batch lớn | Dask, Vaex | 🟠 Trung bình-cao |
-| 4 | Deploy Streamlit/Heroku | Streamlit Cloud, Heroku | 🟡 Trung bình |
-| 5 | A/B Testing khuyến nghị | scipy.stats, custom pipeline | 🔴 Cao |
+Hệ thống khuyến nghị hiện tại với SVD và KNNWithMeans được đánh giá thông qua chỉ số RMSE và MAE trên tập test tĩnh. Cách đánh giá này chỉ đo độ chính xác dự đoán rating trong điều kiện offline, chưa phản ánh được hiệu quả kinh doanh thực tế như tỉ lệ nhấp chuột (click-through rate), tỉ lệ chuyển đổi (conversion rate) hay doanh thu tăng thêm khi người dùng thực sự tương tác với hệ thống.
 
-> **Ghi chú**: Hướng 1 (Deep Learning) và Hướng 5 (A/B Testing) được ưu tiên cao nhất vì tác động trực tiếp đến chất lượng mô hình và khả năng đánh giá hiệu quả thực tế của hệ thống.
+A/B Testing giải quyết khoảng cách này bằng cách phân chia ngẫu nhiên người dùng thành hai nhóm độc lập: nhóm A (control) tiếp tục nhận kết quả từ mô hình SVD hiện tại, trong khi nhóm B (treatment) nhận kết quả từ mô hình mới như KNNWithMeans hoặc DNN. Việc phân nhóm cần được thực hiện ổn định theo `customer_id` thông qua hàm băm (hash function) để đảm bảo mỗi khách hàng luôn thuộc cùng một nhóm xuyên suốt thí nghiệm. Sau thời gian chạy tối thiểu hai tuần để thu thập đủ dữ liệu (statistical power), nhóm sử dụng t-test hai mẫu hoặc Mann-Whitney U test để kiểm định xem sự khác biệt giữa hai nhóm có ý nghĩa thống kê không (ngưỡng p-value < 0.05). Chỉ khi nhóm B cho kết quả tốt hơn có ý nghĩa thống kê trên cả metrics online (CTR, conversion rate, average order value) lẫn metrics offline (NDCG@10, Precision@K), mô hình mới mới được chính thức triển khai thay thế mô hình cũ. Cách tiếp cận này đảm bảo quyết định thay đổi mô hình dựa trên bằng chứng thực nghiệm khách quan, không chỉ dựa trên cảm tính hay RMSE tính trên tập test tĩnh.
+
+---
+
+## Tổng Kết
+
+Năm hướng phát triển trên bổ trợ lẫn nhau và cùng hướng đến mục tiêu xây dựng một hệ thống phân tích khách hàng hoàn chỉnh, có khả năng mở rộng và được đánh giá một cách nghiêm túc. Việc áp dụng Deep Learning và AutoML trực tiếp nâng cao chất lượng mô hình phân loại. Dask và Vaex đảm bảo hệ thống hoạt động được ở quy mô doanh nghiệp thực tế. Deploy lên cloud đưa sản phẩm đến tay người dùng cuối. Và A/B Testing đảm bảo rằng mọi quyết định cải tiến hệ thống khuyến nghị đều có cơ sở thực nghiệm rõ ràng, có thể đo lường và kiểm chứng được.
